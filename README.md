@@ -160,8 +160,11 @@ Classification Report
 
 
 [1]	“Classifying Heart Sounds Challenge.” http://www.peterjbentley.com/heartchallenge/ (accessed Feb. 12, 2023).
+
 [2]	Y. Zeinali and S. T. A. Niaki, “Heart sound classification using signal processing and machine learning algorithms,” Mach. Learn. Appl., vol. 7, p. 100206, Mar. 2022, doi: 10.1016/j.mlwa.2021.100206.
+
 [3]	S. Nakagawa, L. Wang, and S. Ohtsuka, “Speaker Identification and Verification by Combining MFCC and Phase Information,” IEEE Trans. Audio Speech Lang. Process., vol. 20, no. 4, pp. 1085–1095, May 2012, doi: 10.1109/TASL.2011.2172422.
+
 [4]	M. Hasan, M. Jamil, G. Rabbani, and Md. S. Rahman, “Speaker Identification Using Mel Frequency Cepstral Coefficients,” Proc. 3rd Int. Conf. Electr. Comput. Eng. ICECE 2004, Dec. 2004.
 
 
