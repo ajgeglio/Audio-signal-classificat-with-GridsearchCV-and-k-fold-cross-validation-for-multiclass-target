@@ -1,5 +1,4 @@
-# Statistical Machine Learning with GridsearchCV and k-fold cross validation for multiclass target
-## The performance of statistical machine learning and deep learning methods in the classification and diagnosis of time-series heart sounds
+## The performance of statistical machine learning methods in the classification and diagnosis of time-series heart sounds
 ### Tony Geglio
 
 # Introduction to the project
