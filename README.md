@@ -1,22 +1,27 @@
-## The performance of statistical machine learning methods in the classification and diagnosis of time-series heart sounds
-### Tony Geglio
-
+# The performance of statistical machine learning methods in the classification and diagnosis of time-series heart sounds
+### Tony Geglio | M.S. Data Science
+### Michigan Technological University
 # 1. Introduction to the project
 In my research, I am focused on audio processing for classification and spatial analysis. One way this could be extended to the health community is in the diagnosis of cardiovascular abnormalities through analyzing the heart sounds. Other applications include Lung and breathing sound for respiratory conditions, however this data analysis and exploration will focus on the proccessing and classification of raw cadiovascular audio inputs.
+
 ## Problems to Solve
 Currently, patients with cardiovascular disease have tools for monitoring their heart, however early diagnosis of a heart problem is still difficult. I think through very inexpensive sensors connected to a human body and communicating data with a smartphone could provide continuous analysis to people with heart problems, and send alerts, rather than requiring the patient to do the measurement and then react.
+
 ## Implementation Plan and Data Description
 Here, I explore statistical machine learning methods, and later, deep learning methods for classification of heart sounds. For data, currently I am looking at a past competition for classifying heart sounds [1]. This data has 2 challenges, the heart sound segmentation and the heart sound classification for 2 datasets with different classes. The challenge was to correctly classify the unlabeled parts of the dataset. I plan to just use the clipped labeled data and skip the segmentation challenge because it may be more of a digital signal processing problem.
+
 ## Data
 Data was collected for a 2011 challenge proposed by Bentley et al. The challenge included 2 data sets: data set A)  with heart sounds from the general public via the iStethoscope Pro iPhone app; and, data set B) with heart sounds from a clinic trial in hospitals using the digital stethoscope DigiScope. Combined, there are a total of 585 samples, each being a short clip in .wav format. The class balance is heavily biased to “normal” for both data sets.
 
 4 categories for Dataset A:
+
 * Normal
 * Murmur
 * Extra Heart Sound
 * Artifact
 
 3 classes contained in Dataset B:
+
 * Normal
 * Murmur
 * Extrasystole
@@ -27,6 +32,7 @@ My proposal was to build a binary statistical ML classifier for: “normal” an
 The first modification was that I did not train on A and test on B, rather combined the recordings into one data set and randomly train-test-split. This is because I wanted more diversity in my classifier and to be more robust and generalizable.
 
 The second modification was to explore a 5-class classification problem after combining the two data sets. After the combination, the data contained 5 unique classes:
+
 * Normal
 * Murmur
 * Extra Heart Sound
@@ -42,6 +48,7 @@ The limitations and challenges of current methods for cardiac sound signal class
 The purpose of this review is to evaluate the effectiveness of AI/ML/DL methods for cardiac sound signal classification, with a focus on the potential for these techniques to improve the accuracy and reliability of sound analysis. The review will include a systematic search and analysis of relevant studies, including a critical evaluation of the strengths and limitations of AI/ML/DL methods for cardiac sound signal classification. The ultimate goal of the review is to provide insights into the potential of these techniques for improving clinical outcomes and advancing our understanding of cardiac disorders.
 
 Here are five publications on the current state of the art in cardiac sound signal classification published between 2020 and 2023:
+
 1. "Deep learning-based detection of abnormal heart sounds using a time-frequency representation of phonocardiogram" (2020) by Li et al. This paper proposes a deep learning-based approach for detecting abnormal heart sounds using a time-frequency representation of phonocardiogram signals.
 2. "Automatic classification of heart sounds using a convolutional neural network" (2020) by Badawy et al. This paper presents a convolutional neural network-based approach for classifying heart sounds, which achieved high accuracy on a publicly available dataset.
 3. "A novel approach for automatic heart sound classification using deep convolutional neural network with transfer learning" (2021) by Singh et al. This paper presents a novel approach for heart sound classification using a deep convolutional neural network with transfer learning, which achieved high accuracy on a dataset of over 3,000 heart sound recordings.
@@ -65,9 +72,9 @@ Best Model:
 RandomForestClassifier(max_depth=4, n_estimators=15, random_state=42)
 {'criterion': 'gini', 'max_depth': 4, 'max_features': 'sqrt', 'min_samples_split': 2, 'n_estimators': 15}
 
-accuracy:0.714
-recall:0.714
-Precision:0.716
+* accuracy:0.714
+* recall:0.714
+* precision:0.716
 
 Classification Report
 
@@ -91,11 +98,12 @@ MLPClassifier(activation='logistic', alpha=0.1, hidden_layer_sizes=(40, 20), max
               
 {'activation': 'logistic', 'alpha': 0.1, 'hidden_layer_sizes': (40, 20)}
 
-accuracy:0.728
-recall:0.728
-precision:0.672
+* accuracy:0.728
+* recall:0.728
+* precision:0.672
 
 Classification Report
+
 |                 | precision | recall | f1-score | support |
 |-----------------|-----------|--------|----------|---------|
 | artifact        | 1.00      | 0.90   | 0.95     | 10      |
@@ -114,11 +122,12 @@ SVC(C=0.1, gamma=0.01, kernel='linear', max_iter=10000, probability=True)
 
 {'C': 0.1, 'gamma': 0.01, 'kernel': 'linear'}
 
-accuracy:0.673
-recall:0.673
-precision:0.625
+* accuracy:0.673
+* recall:0.673
+* precision:0.625
 
 Classification Report
+
 |                |precision  | recall | f1-score | support |
 |----------------|-----------|--------|----------|---------|
 | artifact       | 1.00      | 0.70   | 0.82     | 10      |
@@ -137,9 +146,10 @@ GradientBoostingClassifier(max_depth=1, n_estimators=50, random_state=42)
 
 {'learning_rate': 0.1, 'max_depth': 1, 'n_estimators': 50}
 
-accuracy:0.701
-recall:0.701
-precision:0.658
+* accuracy:0.701
+* recall:0.701
+* precision:0.658
+
 Classification Report
 
 |              	| precision 	| recall 	| f1-score 	| support 	|
