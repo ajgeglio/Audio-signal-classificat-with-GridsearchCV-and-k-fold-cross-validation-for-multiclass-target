@@ -2,7 +2,7 @@
 ### Tony Geglio
 
 # 1. Introduction to the project
-In my research, I am focused on audio processing for classification and spatial analysis. One way this could be extended to the health community is in the diagnosis of cardiovascular abnormalities through analyzing the heart sounds. Lung and breathing sounds is another interesting application, but most research I have found is focused on the heart because it has better potential to reduce fatal accidents.
+In my research, I am focused on audio processing for classification and spatial analysis. One way this could be extended to the health community is in the diagnosis of cardiovascular abnormalities through analyzing the heart sounds. Other applications include Lung and breathing sound for respiratory conditions, however this data analysis and exploration will focus on the proccessing and classification of raw cadiovascular audio inputs.
 ## Problems to Solve
 Currently, patients with cardiovascular disease have tools for monitoring their heart, however early diagnosis of a heart problem is still difficult. I think through very inexpensive sensors connected to a human body and communicating data with a smartphone could provide continuous analysis to people with heart problems, and send alerts, rather than requiring the patient to do the measurement and then react.
 ## Implementation Plan and Data Description
