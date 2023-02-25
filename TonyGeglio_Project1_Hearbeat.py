@@ -1,9 +1,10 @@
+
 # model selection and metrics
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn import metrics
-from sklearn.metrics import make_scorer, roc_auc_score, classification_report, fbeta_score, f1_score
+from sklearn.metrics import make_scorer, roc_auc_score, classification_report, f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn import preprocessing
@@ -139,19 +140,20 @@ def train_gradient_boosting(X_train, X_test, y_train, y_test, n_split=1):
 def train_bayesian(X_train, X_test, y_train, y_test, n_split=5):
     from sklearn.naive_bayes import GaussianNB
     bayes = GaussianNB()
-    parameters = {"priors": [None, [np.count_nonzero(y_train==0)/y_train.shape[0],y_train.sum()/y_train.shape[0]]]}
-    auc_scoring = make_scorer(roc_auc_score)
+    parameters = {"priors": [None]}
+    f1_scoring = make_scorer(f1_score, average='weighted')
+
+
     if n_split == 1:
         grid_clf = GridSearchCV(estimator=bayes, param_grid=parameters, cv=[(slice(None), slice(None))],
-                                scoring=auc_scoring, verbose=0)
+                                scoring = f1_scoring, verbose=1)
     else:
-        grid_clf = GridSearchCV(estimator=bayes, param_grid=parameters, cv=n_split, scoring=auc_scoring, verbose=0)
+        grid_clf = GridSearchCV(estimator=bayes, param_grid=parameters, cv=n_split, scoring=f1_scoring, verbose=1)
     grid_clf.fit(X_train, y_train)
-
     print(grid_clf.best_estimator_)
     print(grid_clf.best_params_)
-    nb_performance_ = report_performance(grid_clf.best_estimator_, X_train, X_test, y_train, y_test, clf_name="GaussianNB")
-    return grid_clf.best_estimator_, grid_clf.best_params_, nb_performance_
+    nb_performance_ = report_performance(grid_clf, X_train, X_test, y_train, y_test, clf_name="GaussianNB")
+    return nb_performance_
 
 def train_rf(X_train, X_test, y_train, y_test, n_split=5):
     from sklearn.ensemble import RandomForestClassifier
@@ -244,8 +246,9 @@ if __name__ == "__main__":
     start_time = stopwatch()
 
     parser = argparse.ArgumentParser(description='Creates a dataset of taps from a wavfile of recorded typed sentences and associated neonode file')
-    parser.add_argument('--dir', help="directory of the samples and labels", dest="dir_", default='G:\My Drive\_2023_Spring\SAT5114\Statistical_ML\Project\heartbeat_data\data')
-    parser.add_argument('--plot', help="plot the performance")
+    parser.add_argument('--dir', help="directory where the heart sounds are", dest="dir_", default='G:\My Drive\_2023_Spring\SAT5114\Statistical_ML\Project\heartbeat_data\data')
+    parser.add_argument('--plot', help="plot the performance", action="store_true")
+    parser.add_argument('--train', help="train the classifier", action="store_true")
     args = parser.parse_args()
 
     dir_ = args.dir_
@@ -274,43 +277,53 @@ if __name__ == "__main__":
                                                         stratify=enc_labels, 
                                                         test_size=0.25,
                                                         random_state=109) 
-    # print("SVM Classifier Reporting\n")
-    # best_estimator_, best_params_, svm_performance_ = train_svm(X_train, X_test, y_train, y_test, n_split=5)
-    # print("Naive Bays")
-    # best_estimator_, best_params_, nb_performance_ = train_bayesian(X_train, X_test, y_train, y_test, n_split=5)
-    # print('Random Forest')
-    # best_estimator_, best_params_, rf_performance_ = train_rf(X_train, X_test, y_train, y_test, n_split=5)
-    # print('MLP')
-    # best_estimator_, best_params_, mlp_performance_ = train_mlp(X_train, X_test, y_train, y_test, n_split=5)
-    print('Gradient Boosing')
-    best_estimator_, best_params_, gb_performance_ = train_gradient_boosting(X_train, X_test, y_train, y_test, n_split=5)
+    
+    if args.train:
+        # print("SVM Classifier Reporting\n")
+        # best_estimator_, best_params_, svm_performance_ = train_svm(X_train, X_test, y_train, y_test, n_split=5)
+        print("Naive Bays")
+        best_params_, nb_performance_ = train_bayesian(X_train, X_test, y_train, y_test, n_split=5)
+        # print('Random Forest')
+        # best_estimator_, best_params_, rf_performance_ = train_rf(X_train, X_test, y_train, y_test, n_split=5)
+        # print('MLP')
+        # best_estimator_, best_params_, mlp_performance_ = train_mlp(X_train, X_test, y_train, y_test, n_split=5)
+        # print('Gradient Boosing')
+        # best_estimator_, best_params_, gb_performance_ = train_gradient_boosting(X_train, X_test, y_train, y_test, n_split=5)
 
     ################## Performance Summary Plot ##########################################
     if args.plot:
-        performances = [svm_performance_, rf_performance_, nb_performance_, 
-                        mlp_performance_, gb_performance_]
-        models = ["SVM", "Random Forests","GaussianNB", "Decision Tree", 
-                "Random Forest", "Multi-layer perceptron"]
-        fig, ax = plt.subplots(2,3, figsize = (13,8), tight_layout=False)
+        f1_train_scores = [0.69, 0.74, 0.55, 0.77, 0.75]
+        f1_test_scores = [0.62, 0.65, 0.53, 0.69, 0.64]
+        # performances = [svm_performance_, rf_performance_, nb_performance_, 
+        #                 mlp_performance_, gb_performance_]
+        models = ["SVM", "Random Forests","GaussianNB",
+                  "Multi-layer perceptron", "Gradient Boosting"]
+        fig, ax = plt.subplots( figsize = (7,4), tight_layout=False)
         i=0
-        for r in range(2):
-            for c in range(3):
-                ax[r][c].bar(height = performances[i]['train'].values(), 
-                            x = list(performances[i]['train'].keys()),
-                            width = -0.25,
-                            align = 'edge',
-                            label = "training"
-                        
-                            )
-                ax[r][c].bar(height = performances[i]['test'].values(), 
-                            x = list(performances[i]['test'].keys()),
-                            width = 0.25,
-                            align = 'edge',
-                            label = "test"
-                            )
-                ax[r][c].set_ylim(0.9,1)
-                ax[r][c].set_title(f"{models[i]}")
-                i+=1
-        plt.suptitle('Statistical Classifiers Performance')
+        # for r in range(2):
+        #     for c in range(3):
+        # ax.bar(height = performances[i]['train'].values(), 
+        #             x = list(performances[i]['train'].keys()),
+        #             width = -0.25,
+        #             align = 'edge',
+        #             label = "training"
+        #             )
+        ax.barh(width = f1_train_scores, 
+                    y = models,
+                    height = -0.25,
+                    align = 'edge',
+                    label = "training"
+                    )
+        ax.barh(width = f1_test_scores, 
+                    y = models,
+                    height = 0.25,
+                    align = 'edge',
+                    label = "test"
+                    )
+        ax.set_xlim(0.4,1)
+        # ax.set_title(f"{models[i]}")
+        i+=1
+        plt.suptitle('Statistical Classifiers Weighted F1 Score')
         plt.legend()
+        plt.savefig('performance.png')
  
