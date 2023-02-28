@@ -183,7 +183,7 @@ Classification Report
 
 [6] https://medium.com/analytics-vidhya/understanding-the-mel-spectrogram-fca2afa2ce53
 
-
+[7] https://en.wikipedia.org/wiki/Mel-frequency_cepstrum
 
 
 
