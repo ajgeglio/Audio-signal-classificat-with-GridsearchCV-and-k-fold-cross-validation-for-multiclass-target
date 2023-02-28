@@ -181,6 +181,9 @@ Classification Report
 
 [5] https://towardsdatascience.com/micro-macro-weighted-averages-of-f1-score-clearly-explained-b603420b292f
 
+[6] https://medium.com/analytics-vidhya/understanding-the-mel-spectrogram-fca2afa2ce53
+
+
 
 
 
