@@ -13,6 +13,8 @@ Here, I explore statistical machine learning methods, and later, deep learning m
 ## Data
 Data was collected for a 2011 challenge proposed by Bentley et al. The challenge included 2 data sets: data set A)  with heart sounds from the general public via the iStethoscope Pro iPhone app; and, data set B) with heart sounds from a clinic trial in hospitals using the digital stethoscope DigiScope. Combined, there are a total of 585 samples, each being a short clip in .wav format. The class balance is heavily biased to “normal” for both data sets.
 
+Data used for project here: https://drive.google.com/drive/folders/1Tbsfffr93fjI4dxn3lBvOEVLjExNUSII?usp=sharing
+
 4 categories for Dataset A:
 
 * Normal
