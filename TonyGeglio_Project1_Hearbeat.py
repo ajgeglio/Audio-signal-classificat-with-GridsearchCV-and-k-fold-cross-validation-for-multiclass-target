@@ -10,8 +10,7 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn import preprocessing
 # keep track of time
 from timeit import default_timer as stopwatch
-import time
-# For audio files 
+from datetime import datetime
 import librosa
 # Plotting
 import matplotlib.pyplot as plt
@@ -22,9 +21,10 @@ import warnings
 import argparse
 import os
 import re
+import csv
 ########################## Performance Functions ##################################
 
-def calc_specificity(y_actual, y_pred):
+def calc_specificity(y_actual, y_pred): ## Need to edit for multiclass target
     # calculates specificity
     return sum((y_pred < thresh) & (y_actual == 0)) / sum(y_actual == 0)
 
@@ -112,7 +112,7 @@ def train_svm(X_train, X_test, y_train, y_test, n_split=5):
     print(grid_clf.best_params_)
 
     performance_ = report_performance(grid_clf.best_estimator_, X_train, X_test, y_train, y_test, clf_name="SVM")
-    return grid_clf.best_estimator_, grid_clf.best_params_, performance_
+    return grid_clf.best_estimator_,grid_clf.best_params_, performance_
 
 def train_gradient_boosting(X_train, X_test, y_train, y_test, n_split=1):
     from sklearn.ensemble import GradientBoostingClassifier
@@ -134,8 +134,8 @@ def train_gradient_boosting(X_train, X_test, y_train, y_test, n_split=1):
 
     print(grid_clf.best_estimator_)
     print(grid_clf.best_params_)
-    gb_performance_ = report_performance(grid_clf.best_estimator_, X_train, X_test, y_train, y_test, clf_name="Gradient Boosting")
-    return grid_clf.best_estimator_, grid_clf.best_params_, gb_performance_
+    performance_ = report_performance(grid_clf.best_estimator_, X_train, X_test, y_train, y_test, clf_name="Gradient Boosting")
+    return grid_clf.best_estimator_,grid_clf.best_params_,performance_
 
 def train_bayesian(X_train, X_test, y_train, y_test, n_split=5):
     from sklearn.naive_bayes import GaussianNB
@@ -152,8 +152,8 @@ def train_bayesian(X_train, X_test, y_train, y_test, n_split=5):
     grid_clf.fit(X_train, y_train)
     print(grid_clf.best_estimator_)
     print(grid_clf.best_params_)
-    nb_performance_ = report_performance(grid_clf, X_train, X_test, y_train, y_test, clf_name="GaussianNB")
-    return nb_performance_
+    performance_ = report_performance(grid_clf, X_train, X_test, y_train, y_test, clf_name="GaussianNB")
+    return grid_clf.best_estimator_,grid_clf.best_params_, performance_
 
 def train_rf(X_train, X_test, y_train, y_test, n_split=5):
     from sklearn.ensemble import RandomForestClassifier
@@ -183,7 +183,7 @@ def train_rf(X_train, X_test, y_train, y_test, n_split=5):
     print(grid_clf.best_estimator_)
     print(grid_clf.best_params_)
     performance_ = report_performance(grid_clf.best_estimator_, X_train, X_test, y_train, y_test, clf_name="RF")
-    return grid_clf.best_estimator_, grid_clf.best_params_, performance_
+    return grid_clf.best_estimator_,grid_clf.best_params_,performance_
 
 def train_mlp(X_train, X_test, y_train, y_test, n_split=5):
     from sklearn.neural_network import MLPClassifier
@@ -206,7 +206,7 @@ def train_mlp(X_train, X_test, y_train, y_test, n_split=5):
     print(grid_clf.best_params_)
     performance_ = report_performance(grid_clf.best_estimator_, X_train, X_test, 
                                       y_train, y_test, clf_name="MLP")
-    return grid_clf.best_estimator_, grid_clf.best_params_, performance_
+    return grid_clf.best_estimator_,grid_clf.best_params_,performance_
 
 ##################### Getting features out of audio files ##############################################
 def extract_features(file_path):
@@ -230,11 +230,13 @@ def binarize_labels(labels):
     return lb.fit_transform(labels), lb.classes_
 # bin_labels, classes = binarize_labels(labels_)
 
+# Only need if MFCC grid is 2-dimensional for each sample
 def reshape_features():
     nsamples, nx, ny = features.shape
     reshape_features = features.reshape((nsamples,nx*ny))
     print(reshape_features.shape)
 
+# This creates two dictionaries for encoding-decoding the labels
 def label_encoder(labels):
     label2id, id2label = dict(), dict()
     for i, label in enumerate(np.unique(labels)):
@@ -242,8 +244,23 @@ def label_encoder(labels):
         id2label[i] = label
     return label2id, id2label
 
+# Save out a record of performance
+def save_performance_record_out(model, params, performance_):
+    with open('modelout.csv','a', newline='') as fd:
+        writer = csv.writer(fd, delimiter='\t')
+        writer.writerow(date_time_str)
+        writer.writerow(str(model))
+        writer.writerow(str(params))
+        writer.writerow(str(performance_))
+
 if __name__ == "__main__":
     start_time = stopwatch()
+    # current dateTime
+    now = datetime.now()
+
+    # convert to string
+    date_time_str = now.strftime("%Y-%m-%d %H:%M:%S")
+    # For audio files 
 
     parser = argparse.ArgumentParser(description='Creates a dataset of taps from a wavfile of recorded typed sentences and associated neonode file')
     parser.add_argument('--dir', help="directory where the heart sounds are", dest="dir_", default='G:\My Drive\_2023_Spring\SAT5114\Statistical_ML\Project\heartbeat_data\data')
@@ -252,7 +269,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     dir_ = args.dir_
-    # label_files, tap_files = list_samples_labels(dir_)
     trn_file_paths, labels_ = list_samples_labels(dir_)
     label2id, id2label = label_encoder(labels_)
     enc_labels = [label2id[lbl] for lbl in labels_]
@@ -260,15 +276,15 @@ if __name__ == "__main__":
     print("class labels", classes_)
 
 
-    if 'heartbeat_features.csv' in os.listdir(r'./heartbeat_data/data/'):
-        features = np.genfromtxt(r'./heartbeat_data/data/heartbeat_features.csv', delimiter=',')
+    if 'mfcc_features.csv' in os.listdir(r'./heartbeat_data/data/'):
+        features = np.genfromtxt(r'./heartbeat_data/data/mfcc_features.csv', delimiter=',')
         print("the features were loaded: ", features.shape)
     
     else: 
         print("extracting features from audio files... ...")
         features = [extract_features(f) for f in trn_file_paths]
         features = np.array(features)
-        np.savetxt('.\hearbeat_data\data\heartbeat_features.csv', features, delimiter=',', newline='\n', encoding=None)
+        np.savetxt('.\hearbeat_data\data\mfcc_features.csv', features, delimiter=',', newline='\n', encoding=None)
         print("n_samples x n_features created: ", features.shape)
     
 
@@ -279,16 +295,21 @@ if __name__ == "__main__":
                                                         random_state=109) 
     
     if args.train:
-        # print("SVM Classifier Reporting\n")
-        # best_estimator_, best_params_, svm_performance_ = train_svm(X_train, X_test, y_train, y_test, n_split=5)
+        print("SVM Classifier Reporting\n")
+        svm_model ,svm_params ,svm_performance_ = train_svm(X_train, X_test, y_train, y_test, n_split=5)
+        save_performance_record_out(svm_model ,svm_params ,svm_performance_)
         print("Naive Bays")
-        best_params_, nb_performance_ = train_bayesian(X_train, X_test, y_train, y_test, n_split=5)
-        # print('Random Forest')
-        # best_estimator_, best_params_, rf_performance_ = train_rf(X_train, X_test, y_train, y_test, n_split=5)
+        nb_model ,nb_params,  nb_performance_ = train_bayesian(X_train, X_test, y_train, y_test, n_split=5)
+        save_performance_record_out(nb_model ,nb_params,  nb_performance_)
+        print("Random Forests")
+        rf_model ,rf_params, rf_performance_ = train_rf(X_train, X_test, y_train, y_test, n_split=5)
+        save_performance_record_out(rf_model ,rf_params, rf_performance_)
         # print('MLP')
-        # best_estimator_, best_params_, mlp_performance_ = train_mlp(X_train, X_test, y_train, y_test, n_split=5)
+        # mlp_model ,mlp_params, mlp_performance_ = train_mlp(X_train, X_test, y_train, y_test, n_split=5)
+        # save_performance_record_out(mlp_model ,mlp_params, mlp_performance_)
         # print('Gradient Boosing')
-        # best_estimator_, best_params_, gb_performance_ = train_gradient_boosting(X_train, X_test, y_train, y_test, n_split=5)
+        # gb_model ,gb_params, gb_performance_ = train_gradient_boosting(X_train, X_test, y_train, y_test, n_split=5)
+        # save_performance_record_out(gb_model ,gb_params, gb_performance_)
 
     ################## Performance Summary Plot ##########################################
     if args.plot:
